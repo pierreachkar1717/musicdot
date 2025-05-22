@@ -1,0 +1,10 @@
+numpy<2,>=1.23
+essentia-tensorflow>=2.0.0
+mutagen>=1.45
+duckdb>=0.8.1
+faiss-cpu>=1.7.4
+scikit-learn>=1.3.0
+umap-learn>=0.5.4
+hdbscan>=0.8.30
+tqdm>=4.65.0
+pandas>=2.0.0
