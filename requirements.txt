@@ -1,5 +1,5 @@
 numpy<2,>=1.23
-essentia-tensorflow>=2.0.0
+essentia-tensorflow
 mutagen>=1.45
 duckdb>=0.8.1
 faiss-cpu>=1.7.4
