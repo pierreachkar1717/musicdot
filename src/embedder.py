@@ -1,17 +1,15 @@
 from __future__ import annotations
 
 """
-embedder.py
-===========
 Compute fixed‑size audio embeddings for music tracks using Essentia’s
-**Discogs‑EffNet** model.
+Discogs‑EffNet model.
 
 Workflow
 --------
-1. **Load** the audio file as single‑channel (mono) at a fixed sample‑rate.
-2. **Crop** one centred window of ``window_sec`` seconds (default **128 s**).
-3. **Infer** the embedding via the frozen TensorFlow graph.
-4. **Normalise** (L2) the resulting vector and return it.
+1. Load the audio file as single‑channel (mono) at a fixed sample‑rate.
+2. Crop one centred window of ``window_sec`` seconds (default 128 s).
+3. Infer the embedding via the frozen TensorFlow graph.
+4. Normalise (L2) the resulting vector and return it.
 
 """
 
@@ -25,20 +23,27 @@ import numpy as np
 from essentia.standard import MonoLoader, TensorflowPredictEffnetDiscogs
 
 # ---------------------------------------------------------------------------
-# Logging setup – write to logs/embedder.log *and* echo to console
+# Logging setup – write to logs/embedder.log and echo to console
 # ---------------------------------------------------------------------------
 LOG_DIR = Path(__file__).resolve().parent.parent / "logs"
 LOG_DIR.mkdir(exist_ok=True)
 
-FILE_HANDLER = RotatingFileHandler(
-    LOG_DIR / "embedder.log",
-    maxBytes=5_242_880,  # ≈ 5 MiB
-    backupCount=3,
-    encoding="utf-8",
-)
-LOG_FORMAT = "%(asctime)s  %(levelname)8s  [%(name)s]  %(message)s"
-logging.basicConfig(handlers=[FILE_HANDLER, logging.StreamHandler()], format=LOG_FORMAT, level=logging.INFO)
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+# file handler dedicated to this module
+_fh = logging.handlers.RotatingFileHandler(
+    LOG_DIR / "embedder.log", maxBytes=5_000_000, backupCount=3, encoding="utf-8"
+)
+_fmt = logging.Formatter(
+    "%(asctime)s  %(levelname)8s  [%(name)s]  %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+_fh.setFormatter(_fmt)
+_fh.setLevel(logging.INFO)
+
+logger.addHandler(_fh)
+logger.propagate = False
 
 
 class EffNetDiscogsEmbedder:
@@ -120,7 +125,9 @@ class EffNetDiscogsEmbedder:
     # --------------------------------------------------------------------- #
     # Core method
     # --------------------------------------------------------------------- #
-    def embed(self, audio_path: str | os.PathLike[str]) -> np.ndarray:  # noqa: D401 – short imperative OK
+    def embed(
+        self, audio_path: str | os.PathLike[str]
+    ) -> np.ndarray:  # noqa: D401 – short imperative OK
         """Embed a single audio file.
 
         Parameters
@@ -215,4 +222,3 @@ class EffNetDiscogsEmbedder:
 #     # Show a shortened preview so the terminal does not explode
 #     preview = np.array2string(vec[:10], precision=4, separator=", ")
 #     print(f"Embedding shape: {vec.shape}  preview: {preview} …")
-
